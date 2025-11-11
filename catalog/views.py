@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Product, Category
-from .forms import ContactForm
+from .models import Product, Category, Contact
 
 
 def home(request):
@@ -18,11 +17,18 @@ def home(request):
 def contacts(request):
     """Контроллер для страницы контактов"""
     if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('catalog:contacts')
-    else:
-        form = ContactForm()
+        # Обработка формы
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
 
-    return render(request, 'catalog/contacts.html', {'form': form})
+        if name and email and message:
+            # Сохраняем контакт в базу
+            Contact.objects.create(
+                name=name,
+                email=email,
+                message=message
+            )
+            return redirect('catalog:contacts')
+
+    return render(request, 'catalog/contacts.html')
